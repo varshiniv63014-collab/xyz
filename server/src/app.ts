@@ -15,9 +15,28 @@ app.use(cors({
 }));
 app.use(express.json());
 
+import { supabase } from './config/supabase';
+
 // Health Check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+// Hospitals API
+app.get('/api/hospitals', async (req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('hospitals')
+      .select('*')
+      .eq('is_active', true)
+      .order('name');
+      
+    if (error) throw error;
+    
+    res.json({ hospitals: data });
+  } catch (err) {
+    next(err);
+  }
 });
 
 // Basic Error Handler
